@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    var map = L.map('map').setView([43.0, 140.9], 9);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }).addTo(map);
+
+    var c21Icon = L.icon({
+      iconUrl: 'https://112484309-696020835500025939.preview.editmysite.com/uploads/1/1/2/4/112484309/c21-map-icon_orig.png',
+      iconSize: [50, 55],
+      iconAnchor: [25, 55],
+      popupAnchor: [0, -58]
+    });
+
+    fetch('properties.json')
+      .then(function(r) { return r.json(); })
+      .then(function(properties) {
+        properties.forEach(function(p) {
+          var priceDisplay = (p.price === "SOLD")
+            ? '<span style="color:#c0392b;font-size:13px;font-weight:bold;">SOLD</span>'
+            : '<span style="color:#b8860b;font-size:13px;">¥' + p.price.toLocaleString() + '</span>';
+
+          var popup = '<div style="width:200px;font-family:sans-serif;">'
+            + '<img src="' + p.photo + '" style="width:100%;height:auto;object-fit:contain;border-radius:4px;margin-bottom:8px;" />'
+            + '<strong style="font-size:13px;">' + p.title + '</strong><br/>'
+            + priceDisplay + '<br/><br/>'
+            + '<a href="' + p.url + '" target="_blank" style="background:#b8860b;color:white;padding:5px 10px;border-radius:4px;text-decoration:none;font-size:12px;">View Property</a>'
+            + '</div>';
+
+          L.marker([p.lat, p.lng], {icon: c21Icon})
+            .addTo(map)
+            .bindPopup(popup);
+        });
+      });
+  </script>
+</body>
+</html>
